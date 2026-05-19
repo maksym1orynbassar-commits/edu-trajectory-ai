@@ -20,6 +20,11 @@ import {
 } from "lucide-react";
 import "./styles.css";
 
+const roleLabels = {
+  student: "Студент",
+  teacher: "Преподаватель"
+};
+
 const programs = [
   {
     id: "is",
@@ -263,7 +268,24 @@ const initialGrades = {
   math: 76,
   programming: 82,
   database: 70,
-  english: 68
+  english: 68,
+  algorithms: 74,
+  networks: 71,
+  web: 78,
+  security: 64,
+  statistics: 80
+};
+
+const subjectLabels = {
+  math: "Математика",
+  programming: "Программирование",
+  database: "Базы данных",
+  english: "Английский",
+  algorithms: "Алгоритмы",
+  networks: "Компьютерные сети",
+  web: "Web-разработка",
+  security: "Кибербезопасность",
+  statistics: "Статистика"
 };
 
 const qualityLabels = {
@@ -275,6 +297,54 @@ const qualityLabels = {
   logic: "Логика",
   systems: "Системное мышление",
   leadership: "Лидерство"
+};
+
+const defaultRequirements = {
+  data: [
+    { subject: "statistics", min: 75 },
+    { subject: "database", min: 70 },
+    { subject: "programming", min: 70 }
+  ],
+  ai: [
+    { subject: "math", min: 80 },
+    { subject: "programming", min: 78 },
+    { subject: "algorithms", min: 75 }
+  ],
+  backend: [
+    { subject: "programming", min: 76 },
+    { subject: "database", min: 74 },
+    { subject: "web", min: 70 }
+  ],
+  product: [
+    { subject: "english", min: 72 },
+    { subject: "statistics", min: 65 },
+    { subject: "web", min: 65 }
+  ],
+  "mup-ce-security": [
+    { subject: "security", min: 75 },
+    { subject: "networks", min: 72 },
+    { subject: "programming", min: 70 }
+  ],
+  "mup-ce-bigdata": [
+    { subject: "statistics", min: 78 },
+    { subject: "database", min: 75 },
+    { subject: "programming", min: 72 }
+  ],
+  "vtipo-software": [
+    { subject: "programming", min: 76 },
+    { subject: "database", min: 70 },
+    { subject: "algorithms", min: 70 }
+  ],
+  "vtipo-network-iot": [
+    { subject: "networks", min: 76 },
+    { subject: "security", min: 68 },
+    { subject: "programming", min: 70 }
+  ],
+  "vtipo-web-mobile": [
+    { subject: "web", min: 78 },
+    { subject: "programming", min: 72 },
+    { subject: "database", min: 68 }
+  ]
 };
 
 const curriculumExample = `1 семестр: Математика, Основы программирования, Academic Writing
@@ -321,16 +391,33 @@ const keywordRules = [
   }
 ];
 
+function requirementsFor(trajectory) {
+  return trajectory.requirements || defaultRequirements[trajectory.id] || trajectory.gradeFocus.map((subject) => ({ subject, min: 70 }));
+}
+
 function scoreTrajectory(trajectory, grades, qualities, selectedProgram) {
+  const requirements = requirementsFor(trajectory);
   const gradeScore =
-    trajectory.gradeFocus.reduce((sum, key) => sum + Number(grades[key] || 0), 0) /
-    trajectory.gradeFocus.length;
+    requirements.reduce((sum, requirement) => {
+      const value = Number(grades[requirement.subject] || 0);
+      const ratio = requirement.min ? Math.min(110, (value / requirement.min) * 100) : value;
+      return sum + ratio;
+    }, 0) / requirements.length;
   const qualityScore =
     trajectory.qualities.reduce((sum, key) => sum + Number(qualities[key] || 0), 0) /
     trajectory.qualities.length;
   const programBonus = trajectory.programId === selectedProgram ? 8 : 0;
-  const total = Math.round(gradeScore * 0.48 + qualityScore * 0.44 + programBonus);
+  const total = Math.round(gradeScore * 0.56 + qualityScore * 0.34 + programBonus);
   return Math.min(99, Math.max(1, total));
+}
+
+function requirementSummary(trajectory, grades) {
+  return requirementsFor(trajectory).map((requirement) => ({
+    ...requirement,
+    label: subjectLabels[requirement.subject] || requirement.subject,
+    value: Number(grades[requirement.subject] || 0),
+    passed: Number(grades[requirement.subject] || 0) >= requirement.min
+  }));
 }
 
 function parseCurriculum(rawText) {
@@ -457,13 +544,19 @@ async function pdfToCurriculumText(file) {
 }
 
 function App() {
+  const [role, setRole] = useState("student");
   const [programId, setProgramId] = useState("is");
   const [customTrajectories, setCustomTrajectories] = useState([]);
   const [curriculumForm, setCurriculumForm] = useState({
     teacher: "Преподаватель ОП",
     type: "МУП",
     title: "AI элективная траектория",
-    rawText: curriculumExample
+    rawText: curriculumExample,
+    requirements: [
+      { subject: "programming", min: 75 },
+      { subject: "database", min: 70 },
+      { subject: "statistics", min: 70 }
+    ]
   });
   const [grades, setGrades] = useState(initialGrades);
   const [qualities, setQualities] = useState({
@@ -499,11 +592,20 @@ function App() {
   );
   const active = ranked.find((trajectory) => trajectory.id === activeId) || ranked[0];
   const best = ranked[0];
+  const activeRequirements = requirementSummary(active, grades);
+  const isTeacher = role === "teacher";
 
   const updateGrade = (key, value) => setGrades((current) => ({ ...current, [key]: value }));
   const updateQuality = (key, value) => setQualities((current) => ({ ...current, [key]: value }));
   const updateCurriculumForm = (key, value) =>
     setCurriculumForm((current) => ({ ...current, [key]: value }));
+  const updateRequirement = (index, key, value) =>
+    setCurriculumForm((current) => ({
+      ...current,
+      requirements: current.requirements.map((requirement, currentIndex) =>
+        currentIndex === index ? { ...requirement, [key]: key === "min" ? Number(value) : value } : requirement
+      )
+    }));
   const importCurriculumFile = async (file) => {
     if (!file) return;
     const isPdf = file.name.toLowerCase().endsWith(".pdf");
@@ -540,6 +642,7 @@ function App() {
       roles: analysis.roles,
       qualities: analysis.qualities,
       gradeFocus: analysis.gradeFocus,
+      requirements: curriculumForm.requirements,
       skills: analysis.skills,
       semesters: analysis.semesters,
       explanation: `${curriculumForm.type} добавил: ${curriculumForm.teacher}. ${analysis.explanation}`
@@ -562,7 +665,7 @@ function App() {
         <nav className="nav">
           <a className="active" href="#dashboard"><BarChart3 size={18} /> Дашборд</a>
           <a href="#profile"><UserRound size={18} /> Профиль</a>
-          <a href="#constructor"><FilePlus2 size={18} /> МУП/РУП</a>
+          {isTeacher && <a href="#constructor"><FilePlus2 size={18} /> МУП/РУП</a>}
           <a href="#map"><Map size={18} /> 8 семестров</a>
           <a href="#career"><BriefcaseBusiness size={18} /> Профессии</a>
         </nav>
@@ -571,13 +674,26 @@ function App() {
       <section className="workspace">
         <header className="topbar">
           <div>
-            <p className="eyebrow">AI advisor for students</p>
+            <p className="eyebrow">AI advisor for {roleLabels[role].toLowerCase()}</p>
             <h1>Выбор образовательной траектории по МУП/РУП, оценкам и качествам студента</h1>
           </div>
-          <button className="primary-button">
-            <Sparkles size={18} />
-            Пересчитать
-          </button>
+          <div className="top-actions">
+            <div className="role-switch" aria-label="Выбор роли">
+              {Object.entries(roleLabels).map(([key, label]) => (
+                <button
+                  className={role === key ? "active" : ""}
+                  key={key}
+                  onClick={() => setRole(key)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <button className="primary-button">
+              <Sparkles size={18} />
+              Пересчитать
+            </button>
+          </div>
         </header>
 
         <section id="dashboard" className="summary-grid">
@@ -588,8 +704,8 @@ function App() {
             <div className="score-row">
               <div className="score-ring">{best.score}%</div>
               <div>
-                <strong>Совпадение профиля</strong>
-                <span>оценки + качества + соответствие выбранной ОП</span>
+                <strong>{isTeacher ? "Рекомендация для эдвайзера" : "Рекомендация для студента"}</strong>
+                <span>обязательные предметы траектории + качества + соответствие выбранной ОП</span>
               </div>
             </div>
           </div>
@@ -611,7 +727,7 @@ function App() {
           </div>
         </section>
 
-        <section id="constructor" className="curriculum-section">
+        {isTeacher && <section id="constructor" className="curriculum-section">
           <div className="section-title">
             <ClipboardList size={20} />
             <h2>Конструктор МУП/РУП для преподавателя</h2>
@@ -656,6 +772,28 @@ function App() {
                   />
                 </label>
               </div>
+              <div className="requirements-editor">
+                <h3>Требования траектории</h3>
+                {curriculumForm.requirements.map((requirement, index) => (
+                  <div className="requirement-row" key={index}>
+                    <select
+                      value={requirement.subject}
+                      onChange={(event) => updateRequirement(index, "subject", event.target.value)}
+                    >
+                      {Object.entries(subjectLabels).map(([key, label]) => (
+                        <option key={key} value={key}>{label}</option>
+                      ))}
+                    </select>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={requirement.min}
+                      onChange={(event) => updateRequirement(index, "min", event.target.value)}
+                    />
+                  </div>
+                ))}
+              </div>
               <label className="textarea-label">
                 <span>Дисциплины по семестрам</span>
                 <textarea
@@ -692,22 +830,22 @@ function App() {
               </div>
             </div>
           </div>
-        </section>
+        </section>}
 
         <section className="content-grid">
           <div id="profile" className="control-panel">
             <div className="section-title">
               <SlidersHorizontal size={20} />
-              <h2>Профиль студента</h2>
+              <h2>{isTeacher ? "Редактирование профиля студента" : "Профиль студента"}</h2>
             </div>
             <div className="form-block">
-              <h3>Текущие оценки</h3>
+              <h3>Оценки по 9 предметам</h3>
               {Object.entries(grades).map(([key, value]) => (
                 <RangeRow key={key} label={gradeName(key)} value={value} onChange={(next) => updateGrade(key, next)} />
               ))}
             </div>
             <div className="form-block">
-              <h3>Качества и интересы</h3>
+              <h3>{isTeacher ? "Качества и интересы студента" : "Мои качества и интересы"}</h3>
               {Object.entries(qualityLabels).map(([key, label]) => (
                 <RangeRow key={key} label={label} value={qualities[key]} onChange={(next) => updateQuality(key, next)} />
               ))}
@@ -719,6 +857,9 @@ function App() {
               <LineChart size={20} />
               <h2>Сравнение траекторий</h2>
             </div>
+            <p className="muted-text">
+              Преподаватель задаёт по 3 обязательных предмета на каждую траекторию, студент заполняет оценки по 9 предметам, ML-модель считает совпадение.
+            </p>
             <div className="trajectory-list">
               {ranked.map((trajectory) => (
                 <button
@@ -728,7 +869,7 @@ function App() {
                 >
                   <span>
                     <strong>{trajectory.short}</strong>
-                    <small>{trajectory.roles.join(" / ")}</small>
+                    <small>{requirementsFor(trajectory).map((item) => subjectLabels[item.subject] || item.subject).join(" / ")}</small>
                   </span>
                   <b>{trajectory.score}%</b>
                 </button>
@@ -744,6 +885,14 @@ function App() {
                 <div className="mini-score">{active.score}%</div>
               </div>
               <p>{active.explanation}</p>
+              <div className="requirements-list">
+                {activeRequirements.map((requirement) => (
+                  <div className={requirement.passed ? "requirement-pill passed" : "requirement-pill"} key={requirement.subject}>
+                    <span>{requirement.label}</span>
+                    <b>{requirement.value}/{requirement.min}</b>
+                  </div>
+                ))}
+              </div>
               <div className="chips">
                 {active.skills.map((skill) => <span key={skill}>{skill}</span>)}
               </div>
@@ -791,13 +940,7 @@ function RangeRow({ label, value, onChange }) {
 }
 
 function gradeName(key) {
-  const names = {
-    math: "Математика",
-    programming: "Программирование",
-    database: "Базы данных",
-    english: "Английский"
-  };
-  return names[key] || key;
+  return subjectLabels[key] || key;
 }
 
 createRoot(document.getElementById("root")).render(<App />);

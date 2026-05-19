@@ -104,6 +104,37 @@ textarea {
   margin-bottom: 24px;
 }
 
+.top-actions {
+  display: grid;
+  justify-items: end;
+  gap: 12px;
+}
+
+.role-switch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(120px, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #c6d3d5;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.role-switch button {
+  min-height: 36px;
+  border: 0;
+  border-radius: 7px;
+  color: #536b70;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.role-switch button.active {
+  color: #0f2b2e;
+  background: #9fe6d2;
+}
+
 .eyebrow {
   margin: 0 0 6px;
   color: #536b70;
@@ -452,6 +483,37 @@ h3 {
   font-weight: 800;
 }
 
+.requirements-editor {
+  padding: 14px;
+  border: 1px solid #dce5e6;
+  border-radius: 8px;
+  background: #f8fbfb;
+}
+
+.requirements-editor h3 {
+  margin-bottom: 10px;
+}
+
+.requirement-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 86px;
+  gap: 10px;
+}
+
+.requirement-row + .requirement-row {
+  margin-top: 8px;
+}
+
+.requirement-row select,
+.requirement-row input {
+  min-height: 42px;
+  padding: 0 10px;
+  border: 1px solid #c6d3d5;
+  border-radius: 8px;
+  color: #172126;
+  background: #ffffff;
+}
+
 .form-block + .form-block {
   margin-top: 24px;
   padding-top: 20px;
@@ -480,6 +542,11 @@ h3 {
 .trajectory-list {
   display: grid;
   gap: 10px;
+}
+
+.muted-text {
+  color: #5f7478;
+  font-size: 14px;
 }
 
 .trajectory-item {
@@ -526,6 +593,39 @@ h3 {
   border: 1px solid #dce5e6;
   border-radius: 8px;
   background: #ffffff;
+}
+
+.requirements-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.requirement-pill {
+  display: grid;
+  gap: 4px;
+  min-height: 68px;
+  padding: 10px;
+  border: 1px solid #ead5d5;
+  border-radius: 8px;
+  background: #fff7f7;
+}
+
+.requirement-pill.passed {
+  border-color: #bde3d7;
+  background: #effaf6;
+}
+
+.requirement-pill span {
+  color: #4d666b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.requirement-pill b {
+  color: #173b3f;
+  font-size: 18px;
 }
 
 .detail-header {
@@ -635,6 +735,15 @@ h3 {
     flex-direction: column;
   }
 
+  .top-actions {
+    justify-items: stretch;
+    width: 100%;
+  }
+
+  .role-switch {
+    grid-template-columns: 1fr 1fr;
+  }
+
   .nav {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -666,6 +775,7 @@ h3 {
   }
 
   .career-row,
+  .requirements-list,
   .semester-grid {
     grid-template-columns: 1fr;
   }
