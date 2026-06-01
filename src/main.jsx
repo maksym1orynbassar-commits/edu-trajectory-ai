@@ -594,7 +594,15 @@ async function pdfToCurriculumText(file) {
 function App() {
   const [users, setUsers] = useState(() => loadUsers());
   const [currentUser, setCurrentUser] = useState(() => loadCurrentUser(loadUsers()));
+  const [authMode, setAuthMode] = useState("login");
   const [loginForm, setLoginForm] = useState({ email: "admin@edu.kz", password: "admin123", error: "" });
+  const [registerForm, setRegisterForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "student",
+    error: ""
+  });
   const [userForm, setUserForm] = useState({
     name: "",
     email: "",
@@ -670,6 +678,28 @@ function App() {
     }
     window.localStorage.setItem("eduTrajectoryCurrentUser", user.id);
     setCurrentUser(user);
+  };
+  const register = (event) => {
+    event.preventDefault();
+    if (!registerForm.name || !registerForm.email || !registerForm.password) {
+      setRegisterForm((current) => ({ ...current, error: "Заполните имя, email и пароль" }));
+      return;
+    }
+    if (users.some((user) => user.email.toLowerCase() === registerForm.email.trim().toLowerCase())) {
+      setRegisterForm((current) => ({ ...current, error: "Такой email уже зарегистрирован" }));
+      return;
+    }
+    const nextUser = {
+      id: `user-${Date.now()}`,
+      name: registerForm.name.trim(),
+      email: registerForm.email.trim(),
+      password: registerForm.password,
+      role: registerForm.role
+    };
+    const nextUsers = [...users, nextUser];
+    saveUsers(nextUsers);
+    window.localStorage.setItem("eduTrajectoryCurrentUser", nextUser.id);
+    setCurrentUser(nextUser);
   };
   const logout = () => {
     window.localStorage.removeItem("eduTrajectoryCurrentUser");
@@ -772,28 +802,47 @@ function App() {
           <form className="auth-form" onSubmit={login}>
             <div>
               <p className="eyebrow">Role based access</p>
-              <h1>Вход в систему</h1>
+              <h1>{authMode === "login" ? "Вход в систему" : "Регистрация"}</h1>
             </div>
-            <label>
-              <span>Email</span>
-              <input
-                value={loginForm.email}
-                onChange={(event) => setLoginForm((current) => ({ ...current, email: event.target.value, error: "" }))}
+            <div className="auth-tabs">
+              <button type="button" className={authMode === "login" ? "active" : ""} onClick={() => setAuthMode("login")}>
+                Вход
+              </button>
+              <button type="button" className={authMode === "register" ? "active" : ""} onClick={() => setAuthMode("register")}>
+                Регистрация
+              </button>
+            </div>
+
+            {authMode === "login" ? (
+              <>
+                <label>
+                  <span>Email</span>
+                  <input
+                    value={loginForm.email}
+                    onChange={(event) => setLoginForm((current) => ({ ...current, email: event.target.value, error: "" }))}
+                  />
+                </label>
+                <label>
+                  <span>Пароль</span>
+                  <input
+                    type="password"
+                    value={loginForm.password}
+                    onChange={(event) => setLoginForm((current) => ({ ...current, password: event.target.value, error: "" }))}
+                  />
+                </label>
+                {loginForm.error && <p className="form-error">{loginForm.error}</p>}
+                <button className="primary-button" type="submit">
+                  <Lock size={18} />
+                  Войти
+                </button>
+              </>
+            ) : (
+              <RegisterForm
+                form={registerForm}
+                onChange={(key, value) => setRegisterForm((current) => ({ ...current, [key]: value, error: "" }))}
+                onSubmit={register}
               />
-            </label>
-            <label>
-              <span>Пароль</span>
-              <input
-                type="password"
-                value={loginForm.password}
-                onChange={(event) => setLoginForm((current) => ({ ...current, password: event.target.value, error: "" }))}
-              />
-            </label>
-            {loginForm.error && <p className="form-error">{loginForm.error}</p>}
-            <button className="primary-button" type="submit">
-              <Lock size={18} />
-              Войти
-            </button>
+            )}
           </form>
           <div className="demo-users">
             <strong>Демо-доступы</strong>
@@ -1143,6 +1192,37 @@ function RangeRow({ label, value, onChange }) {
       <input type="range" min="0" max="100" value={value} onChange={(event) => onChange(Number(event.target.value))} />
       <b>{value}</b>
     </label>
+  );
+}
+
+function RegisterForm({ form, onChange, onSubmit }) {
+  return (
+    <>
+      <label>
+        <span>Имя</span>
+        <input value={form.name} onChange={(event) => onChange("name", event.target.value)} />
+      </label>
+      <label>
+        <span>Email</span>
+        <input value={form.email} onChange={(event) => onChange("email", event.target.value)} />
+      </label>
+      <label>
+        <span>Пароль</span>
+        <input type="password" value={form.password} onChange={(event) => onChange("password", event.target.value)} />
+      </label>
+      <label>
+        <span>Роль</span>
+        <select value={form.role} onChange={(event) => onChange("role", event.target.value)}>
+          <option value="student">Студент</option>
+          <option value="teacher">Преподаватель</option>
+        </select>
+      </label>
+      {form.error && <p className="form-error">{form.error}</p>}
+      <button className="primary-button" type="button" onClick={onSubmit}>
+        <UserRound size={18} />
+        Создать аккаунт
+      </button>
+    </>
   );
 }
 

@@ -73,6 +73,7 @@ textarea {
 }
 
 .auth-form input,
+.auth-form select,
 .admin-form input,
 .admin-form select {
   min-height: 44px;
@@ -81,6 +82,31 @@ textarea {
   border-radius: 8px;
   color: #172126;
   background: #f8fbfb;
+}
+
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #c6d3d5;
+  border-radius: 8px;
+  background: #f8fbfb;
+}
+
+.auth-tabs button {
+  min-height: 38px;
+  border: 0;
+  border-radius: 7px;
+  color: #536b70;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.auth-tabs button.active {
+  color: #0f2b2e;
+  background: #9fe6d2;
 }
 
 .form-error {
