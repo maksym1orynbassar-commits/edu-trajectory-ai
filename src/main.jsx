@@ -9,7 +9,6 @@ import {
   ChevronDown,
   ClipboardList,
   FilePlus2,
-  GraduationCap,
   LineChart,
   Lock,
   LogOut,
@@ -23,6 +22,7 @@ import {
   Wand2
 } from "lucide-react";
 import "./styles.css";
+import yessenovLogo from "./assets/yessenov-logo.svg";
 
 const roleLabels = {
   student: "Студент",
@@ -793,7 +793,7 @@ function App() {
       <main className="auth-shell">
         <section className="auth-panel">
           <div className="brand auth-brand">
-            <div className="brand-mark"><GraduationCap size={25} /></div>
+            <img className="university-logo" src={yessenovLogo} alt="Yessenov University" />
             <div>
               <strong>EduTrajectory AI</strong>
               <span>Авторизация платформы</span>
@@ -859,7 +859,7 @@ function App() {
     <main className="app-shell">
       <aside className="sidebar">
         <div className="brand">
-          <div className="brand-mark"><GraduationCap size={25} /></div>
+          <img className="university-logo" src={yessenovLogo} alt="Yessenov University" />
           <div>
             <strong>EduTrajectory AI</strong>
             <span>ML-рекомендации для ОП</span>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 190" role="img" aria-labelledby="title">
+  <title id="title">Yessenov University</title>
+  <g fill="#002B7F">
+    <path d="M0 0h36l55 64L146 0h36l-70 82v70H70V82L0 0Zm11 37 49 58-22 25 32 30v-44L11 37Zm160 0-49 58 22 25-32 30v-44l59-69ZM34 117l30 29v20c8 3 17 5 27 5s19-2 27-5v-20l30-29v48c-16 16-35 25-57 25s-41-9-57-25v-48Z"/>
+    <text x="220" y="82" font-family="Georgia, 'Times New Roman', serif" font-size="74" font-weight="700" letter-spacing="3">YESSENOV</text>
+    <text x="224" y="156" font-family="Arial, Helvetica, sans-serif" font-size="45" font-weight="500" letter-spacing="24">UNIVERSITY</text>
+  </g>
+</svg>

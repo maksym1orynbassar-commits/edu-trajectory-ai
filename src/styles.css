@@ -985,6 +985,325 @@ h3 {
   }
 }
 
+/* Premium motion layer + Yessenov branding */
+:root {
+  --yu-blue: #002b7f;
+  --ink: #142326;
+  --surface: rgba(255, 255, 255, 0.86);
+  --line: rgba(0, 43, 127, 0.12);
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+body {
+  background:
+    radial-gradient(circle at 12% -8%, rgba(0, 43, 127, 0.12), transparent 32%),
+    linear-gradient(180deg, #f8fafb 0%, #eef3f5 100%);
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  transition: transform 180ms var(--ease-out), box-shadow 180ms var(--ease-out), border-color 180ms var(--ease-out), background 180ms var(--ease-out), color 180ms var(--ease-out);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(0, 43, 127, 0.2);
+  outline-offset: 2px;
+}
+
+.university-logo {
+  width: clamp(190px, 22vw, 300px);
+  max-height: 54px;
+  object-fit: contain;
+}
+
+.auth-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-panel::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 5px;
+  background: linear-gradient(90deg, var(--yu-blue), #18a885, #7ad6bd);
+  content: "";
+}
+
+.sidebar {
+  border-bottom-color: var(--line);
+  box-shadow: 0 10px 30px rgba(17, 40, 46, 0.06);
+}
+
+.brand {
+  gap: 14px;
+}
+
+.brand strong {
+  color: var(--ink);
+}
+
+.nav a {
+  position: relative;
+  overflow: hidden;
+}
+
+.nav a::after {
+  position: absolute;
+  right: 12px;
+  bottom: 6px;
+  left: 12px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--yu-blue);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 220ms var(--ease-out);
+  content: "";
+}
+
+.nav a.active::after,
+.nav a:hover::after {
+  transform: scaleX(1);
+}
+
+.topbar {
+  animation: riseIn 520ms var(--ease-out) both;
+}
+
+.topbar h1 {
+  color: var(--ink);
+}
+
+.user-badge {
+  border-color: rgba(0, 43, 127, 0.16);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.primary-button:hover,
+.secondary-button:hover,
+.secondary-lite-button:hover,
+.trajectory-item:hover,
+.upload-box:hover {
+  transform: translateY(-2px);
+}
+
+.primary-button:hover,
+.secondary-button:hover {
+  box-shadow: 0 10px 20px rgba(19, 72, 76, 0.16);
+}
+
+.primary-button {
+  background: linear-gradient(135deg, #7ad6bd, #9fe6d2);
+}
+
+.secondary-button {
+  background: linear-gradient(135deg, #19484c, #002b7f);
+}
+
+.secondary-lite-button:hover {
+  border-color: rgba(0, 43, 127, 0.24);
+  box-shadow: 0 8px 18px rgba(0, 43, 127, 0.08);
+}
+
+.recommendation-panel,
+.program-card,
+.admin-section,
+.control-panel,
+.results-panel,
+.curriculum-section,
+.semester-section {
+  animation: cardIn 480ms var(--ease-out) both;
+  background: var(--surface);
+  backdrop-filter: blur(12px);
+}
+
+.program-card {
+  animation-delay: 70ms;
+}
+
+.admin-section,
+.curriculum-section,
+.content-grid {
+  animation: cardIn 560ms var(--ease-out) both;
+}
+
+.recommendation-panel {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(0, 43, 127, 0.94), rgba(32, 89, 89, 0.95) 58%, rgba(25, 72, 76, 0.98)),
+    #214f4f;
+}
+
+.recommendation-panel::before {
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 380px;
+  height: 380px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+  animation: slowSpin 18s linear infinite;
+  content: "";
+}
+
+.recommendation-panel::after {
+  position: absolute;
+  right: 22px;
+  bottom: 22px;
+  width: 90px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(159, 230, 210, 0.85));
+  animation: scanLine 2.8s ease-in-out infinite;
+  content: "";
+}
+
+.recommendation-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.score-ring,
+.mini-score {
+  position: relative;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18), 0 0 0 0 rgba(159, 230, 210, 0.35);
+  animation: pulseScore 2.6s ease-in-out infinite;
+}
+
+.program-card:hover,
+.admin-section:hover,
+.control-panel:hover,
+.results-panel:hover,
+.curriculum-section:hover,
+.semester-section:hover {
+  box-shadow: 0 14px 32px rgba(24, 41, 46, 0.09);
+}
+
+.section-title {
+  color: #29464b;
+}
+
+.section-title svg,
+.panel-label svg,
+.nav svg {
+  color: var(--yu-blue);
+}
+
+.trajectory-item {
+  border-color: rgba(0, 43, 127, 0.1);
+}
+
+.trajectory-item.selected {
+  border-color: rgba(0, 43, 127, 0.42);
+  box-shadow: 0 8px 18px rgba(0, 43, 127, 0.08);
+}
+
+.trajectory-item b,
+.analysis-stats strong {
+  color: var(--yu-blue);
+}
+
+.chips span {
+  color: #173b3f;
+  background: rgba(0, 43, 127, 0.07);
+}
+
+.requirement-pill.passed {
+  border-color: rgba(24, 168, 133, 0.3);
+  background: linear-gradient(180deg, #f2fbf8, #ffffff);
+}
+
+.semester-card {
+  transition: transform 180ms var(--ease-out), box-shadow 180ms var(--ease-out), border-color 180ms var(--ease-out);
+}
+
+.semester-card:hover {
+  border-color: rgba(0, 43, 127, 0.2);
+  box-shadow: 0 10px 24px rgba(0, 43, 127, 0.07);
+  transform: translateY(-2px);
+}
+
+.user-row:hover {
+  border-color: rgba(0, 43, 127, 0.2);
+  box-shadow: 0 8px 18px rgba(0, 43, 127, 0.06);
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pulseScore {
+  0%, 100% {
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18), 0 0 0 0 rgba(159, 230, 210, 0.3);
+  }
+  50% {
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18), 0 0 0 10px rgba(159, 230, 210, 0);
+  }
+}
+
+@keyframes slowSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scanLine {
+  0%, 100% {
+    opacity: 0.28;
+    transform: translateX(-16px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@media (max-width: 680px) {
+  .university-logo {
+    width: 190px;
+  }
+}
+
 /* UI refresh: calmer workspace layout for role-based product screens */
 :root {
   color: #182426;
