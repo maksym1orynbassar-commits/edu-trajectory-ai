@@ -33,6 +33,76 @@ textarea {
   min-height: 100vh;
 }
 
+.auth-shell {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px;
+  background: #173b3f;
+}
+
+.auth-panel {
+  display: grid;
+  gap: 24px;
+  width: min(100%, 520px);
+  padding: 28px;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 18px 50px rgba(3, 21, 24, 0.22);
+}
+
+.auth-brand {
+  color: #173b3f;
+}
+
+.auth-form {
+  display: grid;
+  gap: 14px;
+}
+
+.auth-form label,
+.admin-form {
+  display: grid;
+  gap: 7px;
+}
+
+.auth-form label span {
+  color: #4d666b;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.auth-form input,
+.admin-form input,
+.admin-form select {
+  min-height: 44px;
+  padding: 0 11px;
+  border: 1px solid #c6d3d5;
+  border-radius: 8px;
+  color: #172126;
+  background: #f8fbfb;
+}
+
+.form-error {
+  margin-bottom: 0;
+  color: #b42318;
+  font-weight: 800;
+}
+
+.demo-users {
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  border-radius: 8px;
+  color: #4d666b;
+  background: #eef8f5;
+  font-size: 13px;
+}
+
+.demo-users strong {
+  color: #173b3f;
+}
+
 .sidebar {
   position: sticky;
   top: 0;
@@ -135,6 +205,30 @@ textarea {
   background: #9fe6d2;
 }
 
+.user-badge {
+  display: grid;
+  min-width: 190px;
+  padding: 10px 12px;
+  border: 1px solid #c6d3d5;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.user-badge span,
+.user-badge strong {
+  display: block;
+}
+
+.user-badge span {
+  color: #536b70;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.user-badge strong {
+  color: #173b3f;
+}
+
 .eyebrow {
   margin: 0 0 6px;
   color: #536b70;
@@ -199,6 +293,20 @@ h3 {
   cursor: pointer;
 }
 
+.secondary-lite-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid #c6d3d5;
+  border-radius: 8px;
+  color: #173b3f;
+  background: #ffffff;
+  cursor: pointer;
+}
+
 .summary-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(330px, 0.75fr);
@@ -207,6 +315,7 @@ h3 {
 
 .recommendation-panel,
 .program-card,
+.admin-section,
 .control-panel,
 .results-panel,
 .curriculum-section,
@@ -340,9 +449,72 @@ h3 {
 
 .control-panel,
 .results-panel,
+.admin-section,
 .curriculum-section,
 .semester-section {
   padding: 22px;
+}
+
+.admin-section {
+  margin-top: 18px;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+  gap: 18px;
+}
+
+.admin-form {
+  align-content: start;
+  padding: 16px;
+  border: 1px solid #dce5e6;
+  border-radius: 8px;
+  background: #f8fbfb;
+}
+
+.users-table {
+  display: grid;
+  gap: 10px;
+}
+
+.user-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px 92px;
+  align-items: center;
+  gap: 10px;
+  min-height: 64px;
+  padding: 10px;
+  border: 1px solid #dce5e6;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.user-row strong,
+.user-row span {
+  display: block;
+}
+
+.user-row span {
+  color: #5f7478;
+  font-size: 13px;
+}
+
+.user-row select,
+.user-row button {
+  min-height: 38px;
+  border: 1px solid #c6d3d5;
+  border-radius: 8px;
+  background: #f8fbfb;
+}
+
+.user-row button {
+  cursor: pointer;
+}
+
+.user-row button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 .curriculum-section {
@@ -715,6 +887,7 @@ h3 {
 
   .summary-grid,
   .content-grid,
+  .admin-grid,
   .curriculum-grid {
     grid-template-columns: 1fr;
   }
@@ -744,6 +917,10 @@ h3 {
     grid-template-columns: 1fr 1fr;
   }
 
+  .user-row {
+    grid-template-columns: 1fr;
+  }
+
   .nav {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -754,6 +931,7 @@ h3 {
 
   .recommendation-panel,
   .program-card,
+  .admin-section,
   .control-panel,
   .results-panel,
   .curriculum-section,

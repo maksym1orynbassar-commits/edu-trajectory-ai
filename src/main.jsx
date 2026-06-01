@@ -11,19 +11,67 @@ import {
   FilePlus2,
   GraduationCap,
   LineChart,
+  Lock,
+  LogOut,
   Map,
+  ShieldCheck,
   SlidersHorizontal,
   Sparkles,
   Target,
   UserRound,
+  Users,
   Wand2
 } from "lucide-react";
 import "./styles.css";
 
 const roleLabels = {
   student: "Студент",
-  teacher: "Преподаватель"
+  teacher: "Преподаватель",
+  admin: "Админ"
 };
+
+const defaultUsers = [
+  {
+    id: "admin-1",
+    name: "Главный админ",
+    email: "admin@edu.kz",
+    password: "admin123",
+    role: "admin"
+  },
+  {
+    id: "teacher-1",
+    name: "Преподаватель ОП",
+    email: "teacher@edu.kz",
+    password: "teacher123",
+    role: "teacher"
+  },
+  {
+    id: "student-1",
+    name: "Студент демо",
+    email: "student@edu.kz",
+    password: "student123",
+    role: "student"
+  }
+];
+
+function loadUsers() {
+  const stored = window.localStorage.getItem("eduTrajectoryUsers");
+  if (!stored) {
+    window.localStorage.setItem("eduTrajectoryUsers", JSON.stringify(defaultUsers));
+    return defaultUsers;
+  }
+  try {
+    return JSON.parse(stored);
+  } catch {
+    window.localStorage.setItem("eduTrajectoryUsers", JSON.stringify(defaultUsers));
+    return defaultUsers;
+  }
+}
+
+function loadCurrentUser(users) {
+  const userId = window.localStorage.getItem("eduTrajectoryCurrentUser");
+  return users.find((user) => user.id === userId) || null;
+}
 
 const programs = [
   {
@@ -544,7 +592,15 @@ async function pdfToCurriculumText(file) {
 }
 
 function App() {
-  const [role, setRole] = useState("student");
+  const [users, setUsers] = useState(() => loadUsers());
+  const [currentUser, setCurrentUser] = useState(() => loadCurrentUser(loadUsers()));
+  const [loginForm, setLoginForm] = useState({ email: "admin@edu.kz", password: "admin123", error: "" });
+  const [userForm, setUserForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "student"
+  });
   const [programId, setProgramId] = useState("is");
   const [customTrajectories, setCustomTrajectories] = useState([]);
   const [curriculumForm, setCurriculumForm] = useState({
@@ -593,8 +649,59 @@ function App() {
   const active = ranked.find((trajectory) => trajectory.id === activeId) || ranked[0];
   const best = ranked[0];
   const activeRequirements = requirementSummary(active, grades);
-  const isTeacher = role === "teacher";
+  const role = currentUser?.role || "student";
+  const isAdmin = role === "admin";
+  const isTeacher = role === "teacher" || isAdmin;
 
+  const saveUsers = (nextUsers) => {
+    setUsers(nextUsers);
+    window.localStorage.setItem("eduTrajectoryUsers", JSON.stringify(nextUsers));
+  };
+  const login = (event) => {
+    event.preventDefault();
+    const user = users.find(
+      (item) =>
+        item.email.toLowerCase() === loginForm.email.trim().toLowerCase() &&
+        item.password === loginForm.password
+    );
+    if (!user) {
+      setLoginForm((current) => ({ ...current, error: "Неверный email или пароль" }));
+      return;
+    }
+    window.localStorage.setItem("eduTrajectoryCurrentUser", user.id);
+    setCurrentUser(user);
+  };
+  const logout = () => {
+    window.localStorage.removeItem("eduTrajectoryCurrentUser");
+    setCurrentUser(null);
+    setLoginForm({ email: "admin@edu.kz", password: "admin123", error: "" });
+  };
+  const addUser = (event) => {
+    event.preventDefault();
+    if (!userForm.name || !userForm.email || !userForm.password) return;
+    if (users.some((user) => user.email.toLowerCase() === userForm.email.trim().toLowerCase())) return;
+    const nextUsers = [
+      ...users,
+      {
+        ...userForm,
+        id: `user-${Date.now()}`,
+        email: userForm.email.trim()
+      }
+    ];
+    saveUsers(nextUsers);
+    setUserForm({ name: "", email: "", password: "", role: "student" });
+  };
+  const updateUserRole = (userId, nextRole) => {
+    const nextUsers = users.map((user) => user.id === userId ? { ...user, role: nextRole } : user);
+    saveUsers(nextUsers);
+    if (currentUser?.id === userId) {
+      setCurrentUser(nextUsers.find((user) => user.id === userId));
+    }
+  };
+  const deleteUser = (userId) => {
+    if (userId === currentUser?.id) return;
+    saveUsers(users.filter((user) => user.id !== userId));
+  };
   const updateGrade = (key, value) => setGrades((current) => ({ ...current, [key]: value }));
   const updateQuality = (key, value) => setQualities((current) => ({ ...current, [key]: value }));
   const updateCurriculumForm = (key, value) =>
@@ -651,6 +758,54 @@ function App() {
     setActiveId(id);
   };
 
+  if (!currentUser) {
+    return (
+      <main className="auth-shell">
+        <section className="auth-panel">
+          <div className="brand auth-brand">
+            <div className="brand-mark"><GraduationCap size={25} /></div>
+            <div>
+              <strong>EduTrajectory AI</strong>
+              <span>Авторизация платформы</span>
+            </div>
+          </div>
+          <form className="auth-form" onSubmit={login}>
+            <div>
+              <p className="eyebrow">Role based access</p>
+              <h1>Вход в систему</h1>
+            </div>
+            <label>
+              <span>Email</span>
+              <input
+                value={loginForm.email}
+                onChange={(event) => setLoginForm((current) => ({ ...current, email: event.target.value, error: "" }))}
+              />
+            </label>
+            <label>
+              <span>Пароль</span>
+              <input
+                type="password"
+                value={loginForm.password}
+                onChange={(event) => setLoginForm((current) => ({ ...current, password: event.target.value, error: "" }))}
+              />
+            </label>
+            {loginForm.error && <p className="form-error">{loginForm.error}</p>}
+            <button className="primary-button" type="submit">
+              <Lock size={18} />
+              Войти
+            </button>
+          </form>
+          <div className="demo-users">
+            <strong>Демо-доступы</strong>
+            <span>admin@edu.kz / admin123</span>
+            <span>teacher@edu.kz / teacher123</span>
+            <span>student@edu.kz / student123</span>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="app-shell">
       <aside className="sidebar">
@@ -664,6 +819,7 @@ function App() {
 
         <nav className="nav">
           <a className="active" href="#dashboard"><BarChart3 size={18} /> Дашборд</a>
+          {isAdmin && <a href="#admin"><ShieldCheck size={18} /> Админ</a>}
           <a href="#profile"><UserRound size={18} /> Профиль</a>
           {isTeacher && <a href="#constructor"><FilePlus2 size={18} /> МУП/РУП</a>}
           <a href="#map"><Map size={18} /> 8 семестров</a>
@@ -678,18 +834,15 @@ function App() {
             <h1>Выбор образовательной траектории по МУП/РУП, оценкам и качествам студента</h1>
           </div>
           <div className="top-actions">
-            <div className="role-switch" aria-label="Выбор роли">
-              {Object.entries(roleLabels).map(([key, label]) => (
-                <button
-                  className={role === key ? "active" : ""}
-                  key={key}
-                  onClick={() => setRole(key)}
-                >
-                  {label}
-                </button>
-              ))}
+            <div className="user-badge">
+              <span>{currentUser.name}</span>
+              <strong>{roleLabels[role]}</strong>
             </div>
-            <button className="primary-button">
+            <button className="primary-button" onClick={logout}>
+              <LogOut size={18} />
+              Выйти
+            </button>
+            <button className="secondary-lite-button">
               <Sparkles size={18} />
               Пересчитать
             </button>
@@ -726,6 +879,60 @@ function App() {
             </div>
           </div>
         </section>
+
+        {isAdmin && <section id="admin" className="admin-section">
+          <div className="section-title">
+            <Users size={20} />
+            <h2>База пользователей</h2>
+          </div>
+          <div className="admin-grid">
+            <form className="admin-form" onSubmit={addUser}>
+              <h3>Создать пользователя</h3>
+              <input
+                placeholder="Имя"
+                value={userForm.name}
+                onChange={(event) => setUserForm((current) => ({ ...current, name: event.target.value }))}
+              />
+              <input
+                placeholder="Email"
+                value={userForm.email}
+                onChange={(event) => setUserForm((current) => ({ ...current, email: event.target.value }))}
+              />
+              <input
+                placeholder="Пароль"
+                value={userForm.password}
+                onChange={(event) => setUserForm((current) => ({ ...current, password: event.target.value }))}
+              />
+              <select
+                value={userForm.role}
+                onChange={(event) => setUserForm((current) => ({ ...current, role: event.target.value }))}
+              >
+                <option value="student">Студент</option>
+                <option value="teacher">Преподаватель</option>
+                <option value="admin">Админ</option>
+              </select>
+              <button className="secondary-button" type="submit">Добавить</button>
+            </form>
+            <div className="users-table">
+              {users.map((user) => (
+                <div className="user-row" key={user.id}>
+                  <div>
+                    <strong>{user.name}</strong>
+                    <span>{user.email}</span>
+                  </div>
+                  <select value={user.role} onChange={(event) => updateUserRole(user.id, event.target.value)}>
+                    <option value="student">Студент</option>
+                    <option value="teacher">Преподаватель</option>
+                    <option value="admin">Админ</option>
+                  </select>
+                  <button disabled={user.id === currentUser.id} onClick={() => deleteUser(user.id)}>
+                    Удалить
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>}
 
         {isTeacher && <section id="constructor" className="curriculum-section">
           <div className="section-title">
